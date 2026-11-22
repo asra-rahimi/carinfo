@@ -9,6 +9,8 @@
 [![CSS](https://img.shields.io/badge/CSS-0.7%25-1572B6?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 [![JavaScript](https://img.shields.io/badge/JavaScript-28.1%25-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
+![نمای سایت CarInfo](screenshot.png)
+
 ## معرفی
 
 CarInfo یک وب‌سایت آموزشی و تعاملی برای رانندگان و علاقه‌مندان خودرو است. تمام داده‌های سایت (قطعات، چراغ‌های هشدار، کدهای دیاگ، واژه‌نامه و سؤالات آزمون) از دیتابیس خوانده می‌شوند و از طریق پنل مدیریت Django بدون تغییر کد قابل ویرایش هستند.
