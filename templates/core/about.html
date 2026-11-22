@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}درباره ما — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-cyan-400">معرفی</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">درباره CarInfo</h1>
+    </div>
+    <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition self-start">
+      ← بازگشت به صفحه اصلی
+    </a>
+  </div>
+
+  <section class="glass-panel rounded-3xl p-6 sm:p-8 space-y-4">
+    <h2 class="text-lg font-black text-cyan-400">مرجع تعاملی آموزش خودرو</h2>
+    <p class="text-sm text-slate-300 leading-loose">
+      CarInfo (کاراینفو) یک وب‌سایت آموزشی و تعاملی برای شناخت قطعات خودرو، چراغ‌های هشدار پشت آمپر و عیب‌یابی اولیه خودرو است. هدف ما این است که رانندگان بدون نیاز به دانش تخصصی مکانیک، با قطعات حیاتی خودرو، علائم خرابی و روش‌های نگهداری درست آشنا شوند.
+    </p>
+    <p class="text-sm text-slate-300 leading-loose">
+      در CarInfo می‌توانید نمای ایکس‌ری و سه‌بعدی موتور را ببینید، چرخه چهارزمانه را شبیه‌سازی کنید، در آزمون تصویری شرکت کنید، قطعات را مقایسه کنید، کدهای خطای دیاگ OBD-II را جستجو کنید و با مکانیک هوشمند گفتگو کنید.
+    </p>
+  </section>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="glass-panel rounded-2xl p-5 space-y-2">
+      <div class="text-2xl font-black text-cyan-400">۱۲+</div>
+      <h3 class="font-extrabold text-sm">قطعه حیاتی خودرو</h3>
+      <p class="text-xs text-slate-400 leading-relaxed">با تصویر واقعی، علائم خرابی و نکات نگهداری</p>
+    </div>
+    <div class="glass-panel rounded-2xl p-5 space-y-2">
+      <div class="text-2xl font-black text-rose-400">۶+</div>
+      <h3 class="font-extrabold text-sm">چراغ هشدار پشت آمپر</h3>
+      <p class="text-xs text-slate-400 leading-relaxed">معنی هر چراغ و اقدام لازم هنگام روشن شدن</p>
+    </div>
+    <div class="glass-panel rounded-2xl p-5 space-y-2">
+      <div class="text-2xl font-black text-amber-400">۱۰۰٪</div>
+      <h3 class="font-extrabold text-sm">تعاملی و آموزشی</h3>
+      <p class="text-xs text-slate-400 leading-relaxed">شبیه‌ساز، آزمون، مقایسه و مکانیک هوشمند</p>
+    </div>
+  </div>
+
+  <section class="glass-panel rounded-3xl p-6 sm:p-8 space-y-3">
+    <h2 class="text-lg font-black text-cyan-400">امکانات سایت</h2>
+    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300 leading-relaxed">
+      <li class="flex items-start gap-2"><span class="text-cyan-400 font-black">•</span> دانشنامه قطعات با جستجو و فیلتر دسته‌بندی</li>
+      <li class="flex items-start gap-2"><span class="text-cyan-400 font-black">•</span> نمای ایکس‌ری و مدل سه‌بعدی موتور</li>
+      <li class="flex items-start gap-2"><span class="text-cyan-400 font-black">•</span> شبیه‌ساز چرخه ۴ زمانه احتراقی</li>
+      <li class="flex items-start gap-2"><span class="text-cyan-400 font-black">•</span> آزمون تصویری شناخت قطعات</li>
+      <li class="flex items-start gap-2"><span class="text-cyan-400 font-black">•</span> استودیوی مقایسه قطعات</li>
+      <li class="flex items-start gap-2"><span class="text-cyan-400 font-black">•</span> واژه‌نامه تخصصی خودرو</li>
+      <li class="flex items-start gap-2"><span class="text-cyan-400 font-black">•</span> جستجوی کدهای خطای دیاگ OBD-II</li>
+      <li class="flex items-start gap-2"><span class="text-cyan-400 font-black">•</span> گاراژ شخصی با یادآورهای سرویس</li>
+    </ul>
+  </section>
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

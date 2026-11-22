@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}پروفایل من — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-cyan-400">حساب کاربری</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">پروفایل کاربری و مشخصات خودرو</h1>
+      <p class="text-xs text-slate-400 mt-1">خوش آمدید، {{ request.user.get_username }}</p>
+    </div>
+    <div class="flex gap-2 self-start">
+      <a href="{% url 'favorites:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-rose-400/40 text-xs font-extrabold text-rose-400 hover:bg-rose-500/15 transition">
+        ♥ علاقه‌مندی‌ها
+      </a>
+      <a href="{% url 'maintenance:reminder_list' %}" class="px-4 py-2 rounded-xl glass-panel border border-emerald-400/40 text-xs font-extrabold text-emerald-400 hover:bg-emerald-500/15 transition">
+        یادآورهای سرویس
+      </a>
+    </div>
+  </div>
+
+  <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-5">
+    <form method="post" class="space-y-3 text-xs">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-slate-400 mb-1">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="mt-1 text-rose-400 text-[11px] leading-relaxed">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 font-extrabold hover:brightness-110 transition">
+        ذخیره پروفایل خودرو
+      </button>
+    </form>
+  </div>
+
+  <div class="glass-panel rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+    <div class="flex gap-2">
+      <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/25 font-bold text-cyan-300 hover:bg-cyan-500/10 transition">
+        بازگشت به صفحه اصلی
+      </a>
+    </div>
+    <form method="post" action="{% url 'accounts:logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="px-4 py-2 rounded-xl glass-panel border border-rose-500/40 font-bold text-rose-400 hover:bg-rose-500/15 transition">
+        خروج از حساب
+      </button>
+    </form>
+  </div>
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

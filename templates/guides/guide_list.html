@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}آموزش‌های نگهداری خودرو — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-cyan-400">آموزش و راهنما</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">آموزش‌های نگهداری خودرو</h1>
+      <p class="text-xs text-slate-400 mt-1">راهنمای عملی برای نگهداری بهتر و افزایش عمر خودرو</p>
+    </div>
+    <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition self-start">
+      ← بازگشت به صفحه اصلی
+    </a>
+  </div>
+
+  <!-- Search & Filter -->
+  <form method="get" class="glass-panel rounded-2xl p-4 flex flex-col sm:flex-row gap-3 text-xs">
+    <input type="text" name="q" value="{{ query }}" placeholder="جستجوی آموزش (مثلاً روغن، ترمز، باتری...)" class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 outline-none focus:border-cyan-400" />
+    <select name="category" onchange="this.form.submit()" class="px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 font-bold outline-none">
+      <option value="">همه موضوعات</option>
+      {% for cat in categories %}
+      <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-extrabold hover:bg-cyan-400 transition">
+      جستجو
+    </button>
+    {% if query or category %}
+    <a href="{% url 'guides:guide_list' %}" class="px-4 py-2.5 rounded-xl glass-panel border border-cyan-500/25 font-bold text-center hover:bg-cyan-500/10 transition">
+      حذف فیلترها
+    </a>
+    {% endif %}
+  </form>
+
+  <!-- Guides Grid -->
+  {% if guides %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    {% for guide in guides %}
+    <article class="glass-panel glass-hover-item rounded-2xl overflow-hidden flex flex-col group">
+      <a href="{{ guide.get_absolute_url }}" class="h-40 bg-slate-950 overflow-hidden border-b border-cyan-500/15 block">
+        {% if guide.visual_url %}
+        <img
+          src="{{ guide.visual_url }}"
+          alt="{{ guide.title }}"
+          loading="lazy"
+          data-backup-src="{{ guide.image_url }}"
+          data-fallback-src="https://placehold.co/600x360/060d1b/38bdf8?text=CarInfo"
+          onerror="if(!this.dataset.triedBackup){this.dataset.triedBackup='1';this.src=this.dataset.backupSrc;}else if(!this.dataset.triedFallback){this.dataset.triedFallback='1';this.src=this.dataset.fallbackSrc;}else{this.onerror=null;}"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        {% else %}
+        <div class="w-full h-full flex items-center justify-center text-cyan-400/70 text-xs font-bold">تصویر در دسترس نیست</div>
+        {% endif %}
+      </a>
+      <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+        <div>
+          {% if guide.category %}
+          <span class="text-[10px] font-bold text-cyan-400">{{ guide.category }}</span>
+          {% endif %}
+          <a href="{{ guide.get_absolute_url }}"><h3 class="font-extrabold text-sm mt-0.5 group-hover:text-cyan-400 transition leading-relaxed">{{ guide.title }}</h3></a>
+          <p class="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">{{ guide.short_description }}</p>
+        </div>
+        <div class="pt-2.5 border-t border-slate-700/40 flex items-center justify-between text-[11px]">
+          <span class="text-slate-400">{{ guide.created_at|date:"Y/m/d" }}</span>
+          <a href="{{ guide.get_absolute_url }}" class="text-cyan-400 font-extrabold">مطالعه ←</a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="glass-panel rounded-2xl p-8 text-center text-sm text-slate-400">
+    آموزشی با این مشخصات پیدا نشد. عبارت جستجو یا فیلتر موضوع را تغییر دهید.
+  </div>
+  {% endif %}
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

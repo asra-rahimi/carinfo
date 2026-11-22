@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}ثبت‌نام — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 sm:px-6 pt-10">
+  <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-5">
+    <div class="text-center space-y-1">
+      <span class="text-xs font-extrabold text-cyan-400">حساب کاربری</span>
+      <h1 class="text-xl font-black">ثبت‌نام در CarInfo</h1>
+      <p class="text-xs text-slate-400">با ثبت‌نام، اطلاعات شما روی سرور ذخیره و بین دستگاه‌ها همگام می‌شود</p>
+    </div>
+
+    <form method="post" class="space-y-3 text-xs">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-slate-400 mb-1">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="mt-1 text-rose-400 text-[11px] leading-relaxed">{{ field.errors|striptags }}</div>
+        {% endif %}
+        {% if field.help_text %}
+        <div class="mt-1 text-slate-500 text-[11px] leading-relaxed">{{ field.help_text|safe }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 font-extrabold hover:brightness-110 transition">
+        ایجاد حساب
+      </button>
+    </form>
+
+    <div class="text-center text-[11px] text-slate-400 pt-1 border-t border-slate-700/40">
+      قبلاً ثبت‌نام کرده‌اید؟
+      <a href="{% url 'accounts:login' %}" class="text-cyan-400 font-bold hover:underline">وارد شوید</a>.
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}چراغ‌های هشدار پشت آمپر — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-rose-400">راهنمای پشت آمپر</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">چراغ‌های هشدار پشت آمپر خودرو</h1>
+      <p class="text-xs text-slate-400 mt-1">معنی هر چراغ، شدت خطر و اقدام لازم هنگام روشن شدن</p>
+    </div>
+    <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition self-start">
+      ← بازگشت به صفحه اصلی
+    </a>
+  </div>
+
+  <section class="space-y-5">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+      <div class="flex gap-1.5 p-1 rounded-xl glass-panel border border-cyan-500/20 text-xs font-bold flex-wrap">
+        <button type="button" id="wlBtnAll" onclick="setWarningSeverity('all')" class="px-3 py-1.5 rounded-lg bg-cyan-500 text-slate-950">همه</button>
+        <button type="button" id="wlBtnRed" onclick="setWarningSeverity('red')" class="px-3 py-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10">قرمز (توقف فوری)</button>
+        <button type="button" id="wlBtnYellow" onclick="setWarningSeverity('yellow')" class="px-3 py-1.5 rounded-lg text-amber-400 hover:bg-amber-500/10">زرد (بررسی سریع)</button>
+      </div>
+      <a href="{% url 'obd:obd_lookup' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-400/35 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition self-start">
+        جستجوی کد خطای دیاگ ←
+      </a>
+    </div>
+
+    <div id="warningLightsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+
+    <div class="text-center pt-1">
+      <button id="toggleAllWarningLightsBtn" type="button" onclick="toggleShowAllWarningLights()" class="px-5 py-2.5 rounded-xl glass-panel border border-cyan-400/35 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition">
+        نمایش خلاصه (۳ مورد اول)
+      </button>
+    </div>
+  </section>
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  state.showAllWarnings = true;
+  renderWarningLights();
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}تماس با ما — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-cyan-400">ارتباط با ما</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">تماس با CarInfo</h1>
+      <p class="text-xs text-slate-400 mt-1">نظر، پیشنهاد یا گزارش خطا؟ برای ما بنویسید</p>
+    </div>
+    <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition self-start">
+      ← بازگشت به صفحه اصلی
+    </a>
+  </div>
+
+  {% if success %}
+  <div class="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm font-bold leading-relaxed">
+    ✓ پیام شما دریافت شد. به زودی پاسخ می‌دهیم.
+  </div>
+  {% endif %}
+
+  <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-4">
+    <form method="post" class="space-y-3 text-xs">
+      {% csrf_token %}
+      <div>
+        <label for="contactName" class="block text-slate-400 mb-1">نام و نام خانوادگی</label>
+        <input id="contactName" name="name" type="text" required placeholder="مثلاً آرمان رضایی" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 focus:border-cyan-400 outline-none" />
+      </div>
+      <div>
+        <label for="contactEmail" class="block text-slate-400 mb-1">ایمیل</label>
+        <input id="contactEmail" name="email" type="email" required dir="ltr" placeholder="you@example.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 focus:border-cyan-400 outline-none font-mono" />
+      </div>
+      <div>
+        <label for="contactMessage" class="block text-slate-400 mb-1">پیام</label>
+        <textarea id="contactMessage" name="message" required rows="5" placeholder="پیام خود را بنویسید..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 focus:border-cyan-400 outline-none leading-relaxed"></textarea>
+      </div>
+      <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 font-extrabold hover:brightness-110 transition">
+        ارسال پیام
+      </button>
+    </form>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center text-xs">
+    <div class="glass-panel rounded-2xl p-4 space-y-1">
+      <div class="font-black text-cyan-400">راهنما</div>
+      <p class="text-slate-400 leading-relaxed">پاسخ بیشتر سوالات در <a href="{% url 'guides:guide_list' %}" class="text-cyan-400 font-bold hover:underline">آموزش‌های نگهداری</a> موجود است.</p>
+    </div>
+    <div class="glass-panel rounded-2xl p-4 space-y-1">
+      <div class="font-black text-cyan-400">ساعات پاسخگویی</div>
+      <p class="text-slate-400 leading-relaxed">شنبه تا پنجشنبه، ۹ تا ۱۸</p>
+    </div>
+  </div>
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

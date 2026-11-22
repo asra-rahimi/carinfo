@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}ویرایش یادآور — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-emerald-400">گاراژ و سرویس</span>
+      <h1 class="text-xl font-black mt-1">ویرایش یادآور</h1>
+    </div>
+    <a href="{% url 'maintenance:reminder_list' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition">
+      ← بازگشت به لیست
+    </a>
+  </div>
+
+  <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-4">
+    <form method="post" class="space-y-3 text-xs">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-slate-400 mb-1">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="mt-1 text-rose-400 text-[11px] leading-relaxed">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 font-extrabold hover:brightness-110 transition">
+          ذخیره تغییرات
+        </button>
+        <a href="{% url 'maintenance:reminder_list' %}" class="px-5 py-2.5 rounded-xl glass-panel border border-cyan-500/25 font-bold text-center hover:bg-cyan-500/10 transition">
+          انصراف
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

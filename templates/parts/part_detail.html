@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ part.name }} — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-5">
+  <button type="button" onclick="window.history.length > 1 ? history.back() : (location.href = '{% url 'parts:part_list' %}')" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition">
+    ← بازگشت
+  </button>
+
+  <div class="glass-panel rounded-3xl overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-12">
+      <div class="md:col-span-5 h-64 md:h-auto bg-slate-950 relative overflow-hidden">
+        {% if part.visual_url %}
+        <img
+          src="{{ part.visual_url }}"
+          alt="{{ part.name }}"
+          loading="lazy"
+          data-backup-src="{{ part.image_url }}"
+          data-fallback-src="https://placehold.co/600x360/060d1b/38bdf8?text={{ part.en_name|urlencode }}"
+          onerror="if(!this.dataset.triedBackup){this.dataset.triedBackup='1';this.src=this.dataset.backupSrc;}else if(!this.dataset.triedFallback){this.dataset.triedFallback='1';this.src=this.dataset.fallbackSrc;}else{this.onerror=null;}"
+          class="w-full h-full object-cover"
+        />
+        {% else %}
+        <div class="w-full h-full flex items-center justify-center text-cyan-400/70 text-xs font-bold">تصویر در دسترس نیست</div>
+        {% endif %}
+      </div>
+      <div class="md:col-span-7 p-6 sm:p-8 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <a href="{% url 'parts:part_list' %}?category={{ part.category.slug }}" class="px-3 py-1 rounded-xl bg-cyan-500/15 text-cyan-300 text-xs font-bold">{{ part.category.name }}</a>
+          <span class="text-xs font-mono text-amber-300 font-bold">{{ part.lifespan }}</span>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-black text-white">{{ part.name }}</h1>
+        {% if part.en_name %}<div class="text-xs font-mono text-slate-400" dir="ltr">{{ part.en_name }}</div>{% endif %}
+        {% if part.description %}<p class="text-xs sm:text-sm text-slate-300 leading-relaxed">{{ part.description }}</p>{% endif %}
+        {% if part.function %}
+        <div class="p-3.5 rounded-2xl bg-slate-900/70 border border-cyan-500/15 space-y-1.5">
+          <div class="text-xs font-extrabold text-cyan-400">وظیفه قطعه:</div>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">{{ part.function }}</p>
+        </div>
+        {% endif %}
+        {% if part.location %}<div class="text-xs text-slate-400"><strong>محل قرارگیری:</strong> {{ part.location }}</div>{% endif %}
+        {% if part.failure_signs_list %}
+        <div class="space-y-1.5 pt-1">
+          <div class="text-xs font-extrabold text-rose-400">علائم رایج خرابی:</div>
+          <ul class="text-xs sm:text-sm text-slate-300 space-y-1">
+            {% for sign in part.failure_signs_list %}<li>• {{ sign }}</li>{% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        {% if part.maintenance_tips_list %}
+        <div class="space-y-1.5 pt-1">
+          <div class="text-xs font-extrabold text-emerald-400">نکات نگهداری:</div>
+          <ul class="text-xs sm:text-sm text-slate-300 space-y-1">
+            {% for tip in part.maintenance_tips_list %}<li>• {{ tip }}</li>{% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        <div class="pt-3 flex flex-wrap gap-2.5">
+          <button type="button" onclick="toggleFavoritePart('{{ part.slug }}', event)" class="px-4 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-extrabold text-xs hover:bg-cyan-400 transition">
+            {% if is_fav %}حذف از نشان‌شده‌ها{% else %}نشان کردن قطعه{% endif %}
+          </button>
+          <button type="button" onclick="toggleAiChat(true)" class="px-4 py-2.5 rounded-xl glass-panel border border-cyan-500/30 text-xs font-bold">
+            پرسش از مکانیک AI
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-panel rounded-2xl p-4 text-xs text-slate-400 flex items-center justify-between gap-3 flex-wrap">
+    <span>سایر قطعات:</span>
+    <div class="flex flex-wrap gap-1.5">
+      {% for p in page_data.parts %}
+      <a href="{% url 'parts:part_detail' p.slug %}" class="px-3 py-1 rounded-xl bg-slate-900/75 hover:bg-cyan-500/20 border border-cyan-500/20 text-[11px] font-bold text-slate-200 hover:text-cyan-300 transition">
+        {{ p.name }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

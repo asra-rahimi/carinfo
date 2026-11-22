@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}واژه‌نامه تخصصی خودرو — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-cyan-400">فرهنگ اصطلاحات</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">واژه‌نامه تخصصی خودرو</h1>
+      <p class="text-xs text-slate-400 mt-1">آشنایی با اصطلاحات رایج فنی خودرو به فارسی و انگلیسی</p>
+    </div>
+    <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition self-start">
+      ← بازگشت به صفحه اصلی
+    </a>
+  </div>
+
+  <section class="space-y-5">
+    <input id="glossarySearchInput" type="text" oninput="renderGlossaryGrid()" placeholder="جستجوی اصطلاح (ECU, ABS, RPM...)" class="w-full sm:w-64 px-3.5 py-2 rounded-xl glass-panel border border-cyan-500/25 text-xs outline-none" />
+    <div id="glossaryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </section>
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

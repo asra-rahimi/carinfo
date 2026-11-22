@@ -1,0 +1,446 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- HOME VIEW -->
+    <div id="homeView" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-14">
+
+      <!-- 1. UNIFIED HERO STAGE: 2D X-Ray Car Map + 3D Exploded Engine Viewer -->
+      <section id="stage-section" class="space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-400 text-[11px] font-bold">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+              نمای تعاملی یکپارچه خودرو و موتور
+            </span>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black mt-2 leading-tight">
+              کالبدشکافی هوشمند خودرو در <span class="text-cyan-400">CarInfo</span>
+            </h1>
+          </div>
+
+          <!-- Stage Tabs: 2D X-Ray vs 3D Exploded Engine -->
+          <div class="inline-flex p-1 rounded-2xl glass-panel border border-cyan-500/25 self-start md:self-auto">
+            <button id="tabBtnXray" type="button" onclick="switchHeroStageTab('xray')" class="px-4 py-2 rounded-xl text-xs font-extrabold bg-cyan-500 text-slate-950 shadow transition">
+              حالت ایکس‌ری خودرو (۲بعدی)
+            </button>
+            <button id="tabBtn3d" type="button" onclick="switchHeroStageTab('3d')" class="px-4 py-2 rounded-xl text-xs font-extrabold text-slate-300 hover:text-cyan-300 transition">
+              نمای ۳بعدی موتور باز شده
+            </button>
+          </div>
+        </div>
+
+        <!-- Panel 1: 2D Top-Down X-Ray Car Anatomy -->
+        <div id="stagePanelXray" class="glass-panel rounded-3xl p-4 sm:p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-300">
+              روی نقاط درخشان روی نقشه کلیک کنید یا نشانگر را ببرید تا جزئیات هر قطعه نمایش داده شود.
+            </p>
+            <button id="toggleShellBtn" type="button" onclick="toggleXrayBodyShell()" class="px-3.5 py-1.5 rounded-xl bg-cyan-500/15 border border-cyan-400/35 text-cyan-300 text-xs font-bold hover:bg-cyan-500/25 transition">
+              شفاف‌سازی بدنه (X-Ray کامل)
+            </button>
+          </div>
+
+          <div class="relative w-full aspect-[16/10] sm:aspect-[16/8] rounded-2xl bg-slate-950 border border-cyan-500/20 overflow-hidden flex items-center justify-center">
+            <svg viewBox="0 0 800 440" class="w-full h-full select-none">
+              <defs>
+                <radialGradient id="bayGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.28" />
+                  <stop offset="100%" stop-color="#030712" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+
+              <!-- Centerline & Grid Accent -->
+              <line x1="50" y1="220" x2="750" y2="220" stroke="#38bdf8" stroke-opacity="0.16" stroke-dasharray="8 6" pointer-events="none" />
+              <circle cx="225" cy="220" r="125" fill="url(#bayGlow)" pointer-events="none" />
+
+              <!-- Wheels -->
+              <g fill="#0f172a" stroke="#475569" stroke-width="3" pointer-events="none">
+                <rect x="170" y="64" width="86" height="30" rx="9" />
+                <rect x="170" y="346" width="86" height="30" rx="9" />
+                <rect x="545" y="64" width="86" height="30" rx="9" />
+                <rect x="545" y="346" width="86" height="30" rx="9" />
+              </g>
+
+              <!-- Chassis & Drive Shaft -->
+              <g stroke="#38bdf8" stroke-opacity="0.28" stroke-width="4" fill="none" pointer-events="none">
+                <line x1="213" y1="94" x2="213" y2="346" />
+                <line x1="588" y1="94" x2="588" y2="346" />
+                <line x1="213" y1="220" x2="588" y2="220" stroke-width="7" stroke="#1e3a8a" />
+              </g>
+
+              <!-- Car Body Shell -->
+              <g id="xrayBodyShell" class="transition-opacity duration-500" pointer-events="none">
+                <path d="M 105,118 C 125,88 180,84 260,84 L 560,84 C 640,84 685,102 696,136 L 696,304 C 685,338 640,356 560,356 L 260,356 C 180,356 125,352 105,322 C 92,280 92,160 105,118 Z"
+                      fill="#1e293b" fill-opacity="0.62" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.45" />
+                <path d="M 305,105 L 368,118 L 368,322 L 305,335 Z" fill="#0ea5e9" fill-opacity="0.14" stroke="#38bdf8" stroke-opacity="0.35" />
+                <path d="M 555,112 L 615,122 L 615,318 L 555,328 Z" fill="#0ea5e9" fill-opacity="0.14" stroke="#38bdf8" stroke-opacity="0.35" />
+              </g>
+
+              <!-- Interactive Hotspots -->
+              <g class="xray-hotspot" data-part-id="engine-block">
+                <rect x="182" y="176" width="96" height="88" rx="14" fill="#1d4ed8" stroke="#7dd3fc" stroke-width="2.5" />
+                <text x="230" y="224" fill="#e0f2fe" font-size="12" font-weight="bold" text-anchor="middle">موتور</text>
+              </g>
+
+              <g class="xray-hotspot" data-part-id="radiator">
+                <rect x="122" y="158" width="20" height="124" rx="5" fill="#0284c7" stroke="#bae6fd" stroke-width="2" />
+              </g>
+
+              <g class="xray-hotspot" data-part-id="battery">
+                <rect x="158" y="114" width="46" height="34" rx="6" fill="#059669" stroke="#a7f3d0" stroke-width="2" />
+                <text x="181" y="136" fill="#ecfdf5" font-size="14" font-weight="bold" text-anchor="middle">+</text>
+              </g>
+
+              <g class="xray-hotspot" data-part-id="alternator">
+                <circle cx="182" cy="300" r="18" fill="#4338ca" stroke="#c7d2fe" stroke-width="2" />
+                <circle cx="182" cy="300" r="6" fill="#eef2ff" />
+              </g>
+
+              <g class="xray-hotspot" data-part-id="brake-disc">
+                <circle cx="213" cy="96" r="14" fill="#e11d48" stroke="#fecdd3" stroke-width="2" />
+                <circle cx="213" cy="344" r="14" fill="#e11d48" stroke="#fecdd3" stroke-width="2" />
+              </g>
+
+              <g class="xray-hotspot" data-part-id="suspension">
+                <rect x="576" y="96" width="24" height="28" rx="6" fill="#7c3aed" stroke="#ddd6fe" stroke-width="2" />
+                <rect x="576" y="316" width="24" height="28" rx="6" fill="#7c3aed" stroke="#ddd6fe" stroke-width="2" />
+              </g>
+
+              <g class="xray-hotspot" data-part-id="ecu">
+                <rect x="294" y="196" width="54" height="48" rx="8" fill="#0f766e" stroke="#5eead4" stroke-width="2" />
+                <text x="321" y="224" fill="#ccfbf1" font-size="11" font-weight="bold" text-anchor="middle">ECU</text>
+              </g>
+
+              <g class="xray-hotspot" data-part-id="catalytic">
+                <rect x="435" y="246" width="58" height="22" rx="8" fill="#475569" stroke="#e2e8f0" stroke-width="2" />
+              </g>
+            </svg>
+          </div>
+
+          <div id="xrayQuickPills" class="flex flex-wrap gap-1.5 justify-center"></div>
+        </div>
+
+        <!-- Panel 2: Procedural 3D Exploded Engine Viewer (Three.js) -->
+        <div id="stagePanel3d" class="hidden glass-panel rounded-3xl p-4 sm:p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-extrabold text-base sm:text-lg text-cyan-400">نمای سه‌بعدی موتور و اجزای قابل جداسازی (CarInfo)</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">با اسلایدر میزان جداسازی، اجزای موتور را از هم باز کنید؛ با کشیدن ماوس بچرخانید و با کلیک هر قطعه را بشناسید.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="explodeToggleBtn" type="button" onclick="toggleEngineExplosion()" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-extrabold text-xs hover:bg-cyan-400 transition">
+                باز کردن قطعات موتور
+              </button>
+              <button type="button" onclick="reset3dCamera()" class="px-3.5 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-bold glass-hover-item">
+                ریست زاویه دوربین
+              </button>
+            </div>
+          </div>
+
+          <!-- Reference Exploded View Visual Banner -->
+          <div class="grid sm:grid-cols-12 gap-3 items-center p-3 rounded-2xl bg-slate-900/70 border border-slate-800">
+            <div class="sm:col-span-4 h-24 rounded-xl overflow-hidden border border-slate-700/80 bg-slate-950">
+              <img
+                src="https://commons.wikimedia.org/wiki/Special:FilePath/Piston.jpg?width=700"
+                alt="نمای فنی اجزای داخلی موتور"
+                loading="lazy"
+                onerror="this.onerror=null;this.src='https://placehold.co/480x240/060d1b/38bdf8?text=Engine+Assembly';"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="sm:col-span-8 space-y-1 text-xs">
+              <div class="font-extrabold text-cyan-400">راهنمای تعامل با مدل سه‌بعدی و قطعات</div>
+              <p class="text-slate-300 leading-relaxed">
+                علاوه بر چرخش مدل سه‌بعدی، می‌توانید روی هر قطعه در بخش «قطعات حیاتی و پرکاربرد» کلیک کنید تا تصویر واقعی، محل قرارگیری و علائم خرابی آن را ببینید.
+              </p>
+            </div>
+          </div>
+
+          <!-- Explosion Slider & Quick Part Selector -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center bg-slate-900/60 dark:bg-navy-900/80 p-3.5 rounded-2xl border border-cyan-500/15">
+            <div class="lg:col-span-5 flex items-center gap-3">
+              <label for="explosionRange" class="text-xs font-bold text-cyan-300 shrink-0">میزان جداسازی:</label>
+              <input id="explosionRange" type="range" min="0" max="100" value="0" oninput="setExplosionAmount(this.value / 100)" class="w-full accent-cyan-400 cursor-pointer" />
+              <span id="explosionPercentLabel" class="text-xs font-mono font-bold text-cyan-400 w-10 text-left tabular-nums">0%</span>
+            </div>
+            <div id="engine3dPartButtons" class="lg:col-span-7 flex flex-wrap gap-1.5 justify-start lg:justify-end"></div>
+          </div>
+
+          <!-- 3D Viewport & Part Inspector -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div id="engine3dViewport" class="lg:col-span-8 relative h-[360px] sm:h-[430px] rounded-2xl bg-slate-950 border border-cyan-500/20 overflow-hidden">
+              <canvas id="engine3dCanvas"></canvas>
+              <div id="engine3dHoverLabel" class="hidden absolute top-3 right-3 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-cyan-400/50 text-cyan-300 text-xs font-bold pointer-events-none"></div>
+            </div>
+
+            <div id="engine3dInfoCard" class="lg:col-span-4 rounded-2xl bg-slate-900/75 dark:bg-navy-900/90 border border-cyan-500/20 p-4 flex flex-col justify-between space-y-4">
+              <div class="space-y-2">
+                <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 inline-block">جزئیات قطعه انتخاب‌شده</span>
+                <h4 id="engine3dPartTitle" class="text-base font-black text-white">بلوک سیلندر (Engine Block)</h4>
+                <p id="engine3dPartDesc" class="text-xs text-slate-300 leading-relaxed">
+                  بدنه اصلی موتور که سیلندرها، مسیرهای گردش آب خنک‌کننده و مجاری روغن در آن قرار دارند.
+                </p>
+              </div>
+              <div class="pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs">
+                <span class="text-slate-400">نکته: روی قطعه کلیک کنید</span>
+                <button type="button" onclick="openPartDetailView('engine-block')" class="text-cyan-400 font-bold hover:underline">صفحه قطعه ←</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. ESSENTIAL AUTOMOTIVE PARTS -->
+      <section id="parts-section" class="space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold text-cyan-400">دانشنامه قطعات</span>
+            <h2 class="text-xl sm:text-2xl font-black mt-1">قطعات حیاتی و پرکاربرد خودرو</h2>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <select id="partCategoryFilter" onchange="renderPartsGrid()" class="px-3.5 py-2 rounded-xl glass-panel border border-cyan-500/20 text-xs font-bold outline-none">
+            </select>
+            <a href="{% url 'parts:part_list' %}" class="px-3.5 py-2 rounded-xl glass-panel border border-cyan-500/20 text-xs font-bold text-cyan-400 hover:bg-cyan-500/10 transition">
+              جستجو و فهرست کامل ←
+            </a>
+          </div>
+        </div>
+
+        <div id="partsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+      </section>
+
+      <!-- 3. DASHBOARD WARNING LIGHTS -->
+      <section id="warning-section" class="space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold text-rose-400">راهنمای پشت آمپر</span>
+            <h2 class="text-xl sm:text-2xl font-black mt-1">چراغ‌های هشدار پشت آمپر خودرو</h2>
+          </div>
+          <div class="flex gap-1.5 p-1 rounded-xl glass-panel border border-cyan-500/20 text-xs font-bold">
+            <button type="button" id="wlBtnAll" onclick="setWarningSeverity('all')" class="px-3 py-1.5 rounded-lg bg-cyan-500 text-slate-950">همه</button>
+            <button type="button" id="wlBtnRed" onclick="setWarningSeverity('red')" class="px-3 py-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10">قرمز (توقف فوری)</button>
+            <button type="button" id="wlBtnYellow" onclick="setWarningSeverity('yellow')" class="px-3 py-1.5 rounded-lg text-amber-400 hover:bg-amber-500/10">زرد (بررسی سریع)</button>
+          </div>
+        </div>
+
+        <div id="warningLightsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+
+        <div class="text-center pt-1">
+          <button id="toggleAllWarningLightsBtn" type="button" onclick="toggleShowAllWarningLights()" class="px-5 py-2.5 rounded-xl glass-panel border border-cyan-400/35 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition">
+            مشاهده همه چراغ‌های پشت آمپر (۶ مورد)
+          </button>
+        </div>
+      </section>
+
+      <!-- 4. 4-STROKE ENGINE CYCLE SIMULATOR -->
+      <section id="simulator-section" class="glass-panel rounded-3xl p-5 sm:p-7 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold text-cyan-400">شبیه‌ساز مکانیکی</span>
+            <h2 class="text-xl sm:text-2xl font-black mt-1">شبیه‌ساز چرخه ۴ زمانه موتور احتراقی</h2>
+            <p class="text-xs text-slate-400 mt-1">حرکت پیوسته پیستون، شاتون، میل‌لنگ، سوپاپ‌ها و جرقه‌زنی در ۷۲۰ درجه چرخش موتور.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="simPlayBtn" type="button" onclick="toggleSimulatorPlay()" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-extrabold text-xs hover:bg-cyan-400 transition">
+              پخش خودکار
+            </button>
+            <select id="simSpeedSelect" onchange="setSimulatorSpeed(this.value)" class="px-3 py-2 rounded-xl glass-panel border border-cyan-500/25 text-xs font-bold outline-none">
+              <option value="1">سرعت: ۱x</option>
+              <option value="0.5">سرعت: ۰.۵x</option>
+              <option value="2">سرعت: ۲x</option>
+            </select>
+            <button type="button" onclick="stepSimulatorStage()" class="px-3.5 py-2 rounded-xl glass-panel border border-cyan-500/25 text-xs font-bold">
+              مرحله بعد ←
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-5 rounded-2xl bg-slate-950 border border-cyan-500/20 p-5 flex flex-col items-center justify-center">
+            <svg viewBox="0 0 260 340" class="w-60 h-80 select-none">
+              <defs>
+                <radialGradient id="simSparkGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ffffff" />
+                  <stop offset="35%" stop-color="#fde047" />
+                  <stop offset="75%" stop-color="#ef4444" stop-opacity="0.88" />
+                  <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
+                </radialGradient>
+                <linearGradient id="simCylinderWall" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#1e293b" />
+                  <stop offset="50%" stop-color="#334155" />
+                  <stop offset="100%" stop-color="#1e293b" />
+                </linearGradient>
+                <linearGradient id="simPistonBody" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#475569" />
+                  <stop offset="50%" stop-color="#94a3b8" />
+                  <stop offset="100%" stop-color="#475569" />
+                </linearGradient>
+              </defs>
+
+              <!-- Cylinder Block & Combustion Chamber Housing -->
+              <rect x="46" y="42" width="168" height="162" rx="8" fill="url(#simCylinderWall)" fill-opacity="0.28" stroke="#475569" stroke-width="4.5" />
+
+              <!-- Intake Port & Valve (Left) -->
+              <path d="M12 24 H76 V42" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-dasharray="4 2" />
+              <g id="simIntakeValve">
+                <line x1="76" y1="16" x2="76" y2="48" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" />
+                <line id="simIntakeValveHead" x1="62" y1="50" x2="90" y2="50" stroke="#7dd3fc" stroke-width="4.5" stroke-linecap="round" />
+              </g>
+
+              <!-- Exhaust Port & Valve (Right) -->
+              <path d="M248 24 H184 V42" fill="none" stroke="#fb7185" stroke-width="3.5" stroke-dasharray="4 2" />
+              <g id="simExhaustValve">
+                <line x1="184" y1="16" x2="184" y2="48" stroke="#fb7185" stroke-width="4" stroke-linecap="round" />
+                <line id="simExhaustValveHead" x1="170" y1="50" x2="198" y2="50" stroke="#fda4af" stroke-width="4.5" stroke-linecap="round" />
+              </g>
+
+              <!-- Spark Plug & Ignition Arc -->
+              <rect x="122" y="10" width="16" height="24" rx="3" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
+              <line x1="130" y1="34" x2="130" y2="46" stroke="#facc15" stroke-width="2.5" />
+              <circle id="simSparkFlash" cx="130" cy="52" r="18" fill="url(#simSparkGlow)" opacity="0" />
+
+              <!-- Dynamic Gas Chamber -->
+              <rect id="simChamberFill" x="49" y="52" width="162" height="28" rx="4" fill="#38bdf8" fill-opacity="0.24" />
+
+              <!-- Piston Assembly -->
+              <g id="simPistonGroup">
+                <rect x="50" y="80" width="160" height="48" rx="7" fill="url(#simPistonBody)" stroke="#e2e8f0" stroke-width="2" />
+                <line x1="53" y1="88" x2="207" y2="88" stroke="#0f172a" stroke-width="2" />
+                <line x1="53" y1="94" x2="207" y2="94" stroke="#0f172a" stroke-width="2" />
+                <circle cx="130" cy="104" r="6.5" fill="#0f172a" stroke="#38bdf8" stroke-width="2.5" />
+              </g>
+
+              <!-- Connecting Rod (شاتون) -->
+              <line id="simConnRod" x1="130" y1="104" x2="130" y2="250" stroke="#e2e8f0" stroke-width="6.5" stroke-linecap="round" />
+
+              <!-- Crankshaft Circle, Counterweight & Crankpin (میل‌لنگ) -->
+              <circle cx="130" cy="274" r="30" fill="none" stroke="#334155" stroke-width="4.5" stroke-dasharray="5 4" />
+              <line id="simCrankArm" x1="130" y1="274" x2="130" y2="250" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round" />
+              <circle cx="130" cy="274" r="9" fill="#0284c7" stroke="#bae6fd" stroke-width="1.5" />
+              <circle id="simCrankDot" cx="130" cy="250" r="6.5" fill="#facc15" stroke="#0f172a" stroke-width="2" />
+            </svg>
+
+            <div class="w-full mt-2 pt-2.5 border-t border-slate-800 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span id="simPressureText">فشار: 0.8 Bar</span>
+              <span id="simStageBadge" class="px-2.5 py-1 rounded-xl bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 text-xs font-extrabold font-sans">
+                مرحله ۱: مکش (Intake)
+              </span>
+              <span id="simTempText">دما: 25°C</span>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 space-y-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button type="button" onclick="setSimulatorStage(0)" class="sim-stage-btn p-2.5 rounded-xl bg-cyan-500 text-slate-950 font-extrabold text-xs">۱. مکش</button>
+              <button type="button" onclick="setSimulatorStage(1)" class="sim-stage-btn p-2.5 rounded-xl glass-panel border border-cyan-500/20 font-bold text-xs">۲. تراکم</button>
+              <button type="button" onclick="setSimulatorStage(2)" class="sim-stage-btn p-2.5 rounded-xl glass-panel border border-cyan-500/20 font-bold text-xs">۳. احتراق</button>
+              <button type="button" onclick="setSimulatorStage(3)" class="sim-stage-btn p-2.5 rounded-xl glass-panel border border-cyan-500/20 font-bold text-xs">۴. تخلیه</button>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/65 dark:bg-navy-900/80 border border-cyan-500/15 space-y-2">
+              <h3 id="simStageTitle" class="font-black text-sm sm:text-base text-white"></h3>
+              <p id="simStageDesc" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+              <div id="simStageTech" class="text-xs font-bold text-cyan-400 pt-1"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. VISUAL QUIZ -->
+      <section id="quiz-section" class="glass-panel rounded-3xl p-5 sm:p-7 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold text-amber-400">آزمون تعاملی</span>
+            <h2 class="text-xl sm:text-2xl font-black mt-1">آزمون تصویری شناخت قطعات خودرو</h2>
+          </div>
+          <div class="px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-extrabold font-mono">
+            امتیاز: <span id="quizScoreText">0</span> / <span id="quizTotalText">0</span>
+          </div>
+        </div>
+        <div id="quizStageBox" class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center"></div>
+      </section>
+
+      <!-- 6. SIDE-BY-SIDE COMPARISON STUDIO -->
+      <section id="comparison-section" class="space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold text-cyan-400">تحلیل و مقایسه</span>
+            <h2 class="text-xl sm:text-2xl font-black mt-1">استودیوی مقایسه قطعات</h2>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <select id="compareSelectA" onchange="renderComparisonStudio()" class="px-3 py-2 rounded-xl glass-panel border border-cyan-500/25 font-bold outline-none"></select>
+            <span class="font-bold text-cyan-400">مقابل</span>
+            <select id="compareSelectB" onchange="renderComparisonStudio()" class="px-3 py-2 rounded-xl glass-panel border border-cyan-500/25 font-bold outline-none"></select>
+          </div>
+        </div>
+
+        <div id="comparisonCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+        <div id="comparisonSummaryBox" class="p-4 rounded-2xl glass-panel border border-cyan-400/30 text-xs sm:text-sm leading-relaxed"></div>
+      </section>
+
+      <!-- 7. GLOSSARY -->
+      <section id="glossary-section" class="space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold text-cyan-400">فرهنگ اصطلاحات</span>
+            <h2 class="text-xl sm:text-2xl font-black mt-1">واژه‌نامه تخصصی خودرو</h2>
+          </div>
+          <input id="glossarySearchInput" type="text" oninput="renderGlossaryGrid()" placeholder="جستجوی اصطلاح (ECU, ABS, RPM...)" class="w-full sm:w-64 px-3.5 py-2 rounded-xl glass-panel border border-cyan-500/25 text-xs outline-none" />
+        </div>
+        <div id="glossaryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- 8. OBD-II ERROR CODE LOOKUP -->
+      <section id="obd-section" class="glass-panel rounded-3xl p-5 sm:p-7 space-y-4">
+        <div>
+          <span class="text-xs font-extrabold text-cyan-400">عیب‌یابی الکترونیکی</span>
+          <h2 class="text-xl sm:text-2xl font-black mt-1">جستجوی کدهای خطای دیاگ OBD-II</h2>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <input id="obdInput" type="text" dir="ltr" maxlength="6" placeholder="P0300" class="sm:w-48 px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 font-mono uppercase text-xs outline-none" />
+          <button type="button" onclick="lookupObdCode()" class="px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-extrabold text-xs hover:bg-cyan-400 transition">
+            بررسی کد خطا
+          </button>
+        </div>
+        <div id="obdResultBox" class="hidden p-4 rounded-2xl bg-slate-900/75 border border-cyan-500/20 text-xs leading-relaxed"></div>
+      </section>
+
+      <!-- 9. GARAGE & SERVICE REMINDERS -->
+      <section id="garage-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <form onsubmit="addServiceReminder(event)" class="lg:col-span-5 glass-panel rounded-3xl p-5 sm:p-6 space-y-3 text-xs">
+          <h2 class="text-lg font-black text-cyan-400">ثبت یادآور تعویض قطعه</h2>
+          <div>
+            <label class="block text-slate-400 mb-1">انتخاب قطعه</label>
+            <select id="reminderPartSelect" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 font-bold outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">بازه تعویض (کیلومتر)</label>
+            <input id="reminderIntervalInput" type="number" min="1000" step="500" value="10000" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 font-mono outline-none" />
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 font-extrabold hover:brightness-110 transition">
+            افزودن یادآور سرویس
+          </button>
+          {% if user.is_authenticated %}
+          <a href="{% url 'maintenance:reminder_list' %}" class="block text-center py-2 rounded-xl glass-panel border border-emerald-400/40 text-emerald-300 font-bold hover:bg-emerald-500/10 transition">
+            مدیریت کامل یادآورها ←
+          </a>
+          {% endif %}
+        </form>
+
+        <div class="lg:col-span-7 glass-panel rounded-3xl p-5 sm:p-6 space-y-3">
+          <h2 class="text-lg font-black">لیست یادآورهای فعال خودرو</h2>
+          <div id="remindersBoard" class="space-y-2.5 text-xs"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- DEDICATED PART DETAIL VIEW -->
+    <section id="partDetailView" class="hidden max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-5">
+      <button type="button" onclick="navigateToView('home')" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition">
+        ← بازگشت به صفحه اصلی
+      </button>
+      <div id="partDetailContainer" class="glass-panel rounded-3xl overflow-hidden"></div>
+    </section>
+
+    {{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

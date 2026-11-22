@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+
+# Django runtime
+db.sqlite3
+media/
+staticfiles/
+
+# Local working files (not part of the site)
+1.md
+code_artifact (5).html

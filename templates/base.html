@@ -1,0 +1,345 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}CarInfo — آموزش تعاملی و عیب‌یابی قطعات خودرو{% endblock %}</title>
+
+  <!-- Vazirmatn Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Vazirmatn', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#030712',
+              900: '#060d1b',
+              850: '#0b1528',
+              800: '#101e38',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Three.js for Procedural 3D Exploded Engine Viewer -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- Top Progress Bar -->
+  <div id="scrollProgressBar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-cyan-400 via-sky-500 to-blue-600 z-50 transition-all duration-150" style="width: 0%;"></div>
+
+  <!-- Non-sticking Pointer Tooltip -->
+  <div id="pointerTooltip" class="fixed pointer-events-none z-50 hidden transition-opacity duration-150">
+    <div class="glass-panel rounded-2xl px-3.5 py-2.5 border border-cyan-400/50 text-xs shadow-2xl max-w-[240px]">
+      <div id="pointerTooltipTitle" class="font-extrabold text-cyan-400"></div>
+      <div id="pointerTooltipSub" class="text-[11px] text-slate-300 mt-0.5"></div>
+    </div>
+  </div>
+
+  <!-- Toast / In-app Message Container -->
+  <div id="toastContainer" class="fixed bottom-20 lg:bottom-6 left-4 right-4 sm:right-auto sm:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-cyan-500/15">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
+
+      <!-- Brand Logo: CarInfo -->
+      <a href="{% url 'core:home' %}" onclick="navigateToView('home')" class="flex items-center gap-3 shrink-0 group">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-700 p-[2px] shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition">
+          <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+            <svg class="w-6 h-6 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l2-5a2 2 0 011.88-1.33h6.24A2 2 0 0117 8l2 5m-14 0h14m-14 0v5a1 1 0 001 1h1a1 1 0 001-1v-1h8v1a1 1 0 001 1h1a1 1 0 001-1v-5"/>
+              <circle cx="8" cy="14.5" r="1.2" fill="currentColor"/>
+              <circle cx="16" cy="14.5" r="1.2" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="text-lg sm:text-xl font-black tracking-tight flex items-center gap-1.5">
+            <span>CarInfo</span>
+            <span class="text-xs font-bold text-cyan-400">کاراینفو</span>
+          </div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:block">پلتفرم هوشمند آموزش و عیب‌یابی خودرو</div>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav id="desktopNav" class="hidden xl:flex items-center gap-1 text-xs font-bold">
+        <a href="{% if request.resolver_match.url_name == 'home' %}#stage-section{% else %}{% url 'core:home' %}#stage-section{% endif %}" data-section="stage-section" onclick="navigateToView('home')" class="nav-link px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-400 transition">نمای ایکس‌ری و ۳بعدی</a>
+        <a href="{% if request.resolver_match.url_name == 'home' %}#parts-section{% else %}{% url 'core:home' %}#parts-section{% endif %}" data-section="parts-section" onclick="navigateToView('home')" class="nav-link px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-400 transition">قطعات حیاتی</a>
+        <a href="{% if request.resolver_match.url_name == 'home' %}#warning-section{% else %}{% url 'core:home' %}#warning-section{% endif %}" data-section="warning-section" onclick="navigateToView('home')" class="nav-link px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-rose-400 transition">چراغ‌های پشت آمپر</a>
+        <a href="{% if request.resolver_match.url_name == 'home' %}#simulator-section{% else %}{% url 'core:home' %}#simulator-section{% endif %}" data-section="simulator-section" onclick="navigateToView('home')" class="nav-link px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-400 transition">شبیه‌ساز ۴ زمانه</a>
+        <a href="{% if request.resolver_match.url_name == 'home' %}#quiz-section{% else %}{% url 'core:home' %}#quiz-section{% endif %}" data-section="quiz-section" onclick="navigateToView('home')" class="nav-link px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-amber-400 transition">آزمون تصویری</a>
+        <a href="{% if request.resolver_match.url_name == 'home' %}#comparison-section{% else %}{% url 'core:home' %}#comparison-section{% endif %}" data-section="comparison-section" onclick="navigateToView('home')" class="nav-link px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-400 transition">مقایسه قطعات</a>
+        <a href="{% if request.resolver_match.url_name == 'home' %}#glossary-section{% else %}{% url 'core:home' %}#glossary-section{% endif %}" data-section="glossary-section" onclick="navigateToView('home')" class="nav-link px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-400 transition">واژه‌نامه</a>
+        <a href="{% if request.resolver_match.url_name == 'home' %}#obd-section{% else %}{% url 'core:home' %}#obd-section{% endif %}" data-section="obd-section" onclick="navigateToView('home')" class="nav-link px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-400 transition">دیاگ OBD-II</a>
+        <a href="{% if request.resolver_match.url_name == 'home' %}#garage-section{% else %}{% url 'core:home' %}#garage-section{% endif %}" data-section="garage-section" onclick="navigateToView('home')" class="nav-link px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-emerald-400 transition">گاراژ و یادآور</a>
+      </nav>
+
+      <!-- Header Right Controls -->
+      <div class="flex items-center gap-2">
+        <!-- Live Persian Clock -->
+        <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel border border-cyan-500/20 text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="persianClock" class="font-mono font-bold tabular-nums">--:--:--</span>
+          <span id="persianDate" class="text-[11px] text-slate-400"></span>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button type="button" onclick="toggleThemeMode()" class="p-2.5 rounded-xl glass-panel border border-cyan-500/20 text-amber-400 hover:scale-105 transition" title="تغییر تم تاریک/روشن">
+          <svg id="sunIcon" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5" /><path stroke-linecap="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+          </svg>
+          <svg id="moonIcon" class="w-4 h-4 block dark:hidden text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+        </button>
+
+        <!-- Favorites Drawer Button -->
+        <button type="button" onclick="toggleDrawer('favoritesDrawer', true)" class="relative p-2.5 rounded-xl glass-panel border border-cyan-500/20 hover:border-rose-400/60 transition" title="نشان‌شده‌ها">
+          <svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+          <span id="favoritesCountBadge" class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black font-mono flex items-center justify-center tabular-nums">0</span>
+        </button>
+
+        <!-- Notifications Drawer Button -->
+        <button type="button" onclick="toggleDrawer('notificationsDrawer', true)" class="relative p-2.5 rounded-xl glass-panel border border-cyan-500/20 hover:border-cyan-400/60 transition" title="یادآورها و اعلان‌ها">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          <span id="notificationsCountBadge" class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-cyan-400 text-slate-950 text-[10px] font-black font-mono flex items-center justify-center tabular-nums">0</span>
+        </button>
+
+        <!-- Auth Button -->
+        <button type="button" onclick="handleAuthClick()" id="headerAuthBtn" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 font-extrabold text-xs shadow-lg shadow-cyan-500/20 hover:brightness-110 transition">
+          <span>حساب خودرو</span>
+        </button>
+
+        <!-- Mobile Dashboard Drawer Toggle -->
+        <button type="button" onclick="toggleDrawer('mobileDashboardDrawer', true)" class="xl:hidden p-2.5 rounded-xl glass-panel border border-cyan-500/25 text-cyan-400 hover:bg-cyan-500/10 transition" aria-label="باز کردن داشبورد موبایل">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE DASHBOARD DRAWER -->
+  <div id="mobileDashboardDrawer" class="fixed inset-0 z-50 hidden">
+    <div onclick="toggleDrawer('mobileDashboardDrawer', false)" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm"></div>
+    <aside class="fixed top-0 left-0 bottom-0 w-80 max-w-[88vw] glass-panel border-r border-cyan-500/25 p-5 overflow-y-auto flex flex-col justify-between gap-6 z-10">
+      <div class="space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-700/40">
+          <div>
+            <div class="font-black text-base text-cyan-400">داشبورد CarInfo</div>
+            <div id="mobileDrawerClock" class="text-[11px] font-mono text-slate-400 mt-0.5 tabular-nums"></div>
+          </div>
+          <button type="button" onclick="toggleDrawer('mobileDashboardDrawer', false)" class="p-2 rounded-xl bg-slate-800/70 text-slate-300 hover:text-white">✕</button>
+        </div>
+
+        <!-- Active Vehicle Card in Mobile Drawer -->
+        <div class="p-3.5 rounded-2xl bg-gradient-to-br from-cyan-500/15 to-blue-600/10 border border-cyan-400/30 space-y-1">
+          <div class="text-[11px] text-cyan-300 font-bold">خودروی ثبت‌شده فعلی</div>
+          <div id="drawerVehicleName" class="font-extrabold text-sm text-white">پژو ۲۰۷ / TU5 (پیش‌فرض)</div>
+          <div id="drawerVehicleKm" class="text-[11px] text-slate-300 font-mono">کارکرد: 45,000 km</div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="space-y-1.5 text-xs font-bold">
+          <a href="{% if request.resolver_match.url_name == 'home' %}#stage-section{% else %}{% url 'core:home' %}#stage-section{% endif %}" onclick="toggleDrawer('mobileDashboardDrawer', false); navigateToView('home')" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/50 hover:bg-cyan-500/15 transition">
+            <span>نمای ایکس‌ری و ۳بعدی موتور</span>
+            <span class="text-cyan-400">←</span>
+          </a>
+          <a href="{% if request.resolver_match.url_name == 'home' %}#parts-section{% else %}{% url 'core:home' %}#parts-section{% endif %}" onclick="toggleDrawer('mobileDashboardDrawer', false); navigateToView('home')" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/50 hover:bg-cyan-500/15 transition">
+            <span>قطعات حیاتی و پرکاربرد</span>
+            <span class="text-cyan-400">←</span>
+          </a>
+          <a href="{% if request.resolver_match.url_name == 'home' %}#warning-section{% else %}{% url 'core:home' %}#warning-section{% endif %}" onclick="toggleDrawer('mobileDashboardDrawer', false); navigateToView('home')" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/50 hover:bg-rose-500/15 transition">
+            <span>چراغ‌های هشدار پشت آمپر</span>
+            <span class="text-rose-400">←</span>
+          </a>
+          <a href="{% if request.resolver_match.url_name == 'home' %}#simulator-section{% else %}{% url 'core:home' %}#simulator-section{% endif %}" onclick="toggleDrawer('mobileDashboardDrawer', false); navigateToView('home')" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/50 hover:bg-cyan-500/15 transition">
+            <span>شبیه‌ساز ۴ زمانه موتور</span>
+            <span class="text-cyan-400">←</span>
+          </a>
+          <a href="{% if request.resolver_match.url_name == 'home' %}#quiz-section{% else %}{% url 'core:home' %}#quiz-section{% endif %}" onclick="toggleDrawer('mobileDashboardDrawer', false); navigateToView('home')" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/50 hover:bg-amber-500/15 transition">
+            <span>آزمون تصویری شناخت قطعات</span>
+            <span class="text-amber-400">←</span>
+          </a>
+          <a href="{% if request.resolver_match.url_name == 'home' %}#comparison-section{% else %}{% url 'core:home' %}#comparison-section{% endif %}" onclick="toggleDrawer('mobileDashboardDrawer', false); navigateToView('home')" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/50 hover:bg-cyan-500/15 transition">
+            <span>مقایسه تخصصی قطعات</span>
+            <span class="text-cyan-400">←</span>
+          </a>
+          <a href="{% if request.resolver_match.url_name == 'home' %}#glossary-section{% else %}{% url 'core:home' %}#glossary-section{% endif %}" onclick="toggleDrawer('mobileDashboardDrawer', false); navigateToView('home')" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/50 hover:bg-cyan-500/15 transition">
+            <span>واژه‌نامه تخصصی خودرو</span>
+            <span class="text-cyan-400">←</span>
+          </a>
+          <a href="{% if request.resolver_match.url_name == 'home' %}#obd-section{% else %}{% url 'core:home' %}#obd-section{% endif %}" onclick="toggleDrawer('mobileDashboardDrawer', false); navigateToView('home')" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/50 hover:bg-cyan-500/15 transition">
+            <span>کدهای خطای دیاگ OBD-II</span>
+            <span class="text-cyan-400">←</span>
+          </a>
+          <a href="{% if request.resolver_match.url_name == 'home' %}#garage-section{% else %}{% url 'core:home' %}#garage-section{% endif %}" onclick="toggleDrawer('mobileDashboardDrawer', false); navigateToView('home')" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/50 hover:bg-emerald-500/15 transition">
+            <span>گاراژ و یادآور تعویض قطعات</span>
+            <span class="text-emerald-400">←</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-3 border-t border-slate-700/40">
+        <button type="button" onclick="toggleDrawer('mobileDashboardDrawer', false); toggleAiChat(true)" class="w-full py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs hover:bg-emerald-400 transition">
+          گفت‌وگو با مکانیک هوشمند AI
+        </button>
+        <button type="button" onclick="toggleDrawer('mobileDashboardDrawer', false); handleAuthClick()" class="w-full py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 font-bold text-xs hover:bg-cyan-500/30 transition">
+          {% if user.is_authenticated %}پروفایل و خودروی من{% else %}ورود / تنظیم پروفایل و خودرو{% endif %}
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- FAVORITES DRAWER -->
+  <div id="favoritesDrawer" class="fixed inset-0 z-50 hidden">
+    <div onclick="toggleDrawer('favoritesDrawer', false)" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm"></div>
+    <aside class="fixed top-0 left-0 bottom-0 w-80 max-w-[90vw] glass-panel border-r border-cyan-500/25 p-5 overflow-y-auto z-10 flex flex-col gap-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700/40">
+        <h3 class="font-extrabold text-sm text-rose-400">قطعات نشان‌شده من</h3>
+        <button type="button" onclick="toggleDrawer('favoritesDrawer', false)" class="p-1.5 rounded-lg bg-slate-800/70 text-xs">✕</button>
+      </div>
+      <div id="favoritesListContainer" class="space-y-3 text-xs"></div>
+    </aside>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER -->
+  <div id="notificationsDrawer" class="fixed inset-0 z-50 hidden">
+    <div onclick="toggleDrawer('notificationsDrawer', false)" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm"></div>
+    <aside class="fixed top-0 left-0 bottom-0 w-80 max-w-[90vw] glass-panel border-r border-cyan-500/25 p-5 overflow-y-auto z-10 flex flex-col gap-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700/40">
+        <h3 class="font-extrabold text-sm text-cyan-400">یادآورها و هشدارهای سرویس</h3>
+        <button type="button" onclick="toggleDrawer('notificationsDrawer', false)" class="p-1.5 rounded-lg bg-slate-800/70 text-xs">✕</button>
+      </div>
+      <div id="notificationsListContainer" class="space-y-3 text-xs"></div>
+    </aside>
+  </div>
+
+  <!-- AUTH / VEHICLE PROFILE MODAL -->
+  <div id="authModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div onclick="toggleAuthModal(false)" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+    <div class="relative z-10 w-full max-w-md glass-panel rounded-3xl p-6 border border-cyan-400/35 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-black text-base text-cyan-400">پروفایل کاربری و مشخصات خودرو</h3>
+        <button type="button" onclick="toggleAuthModal(false)" class="p-1.5 rounded-xl bg-slate-800/70 text-xs">✕</button>
+      </div>
+      <form onsubmit="saveUserProfile(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">نام راننده / کاربر</label>
+          <input id="profileNameInput" type="text" required placeholder="مثلاً آرمان رضایی" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 focus:border-cyan-400 outline-none" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">مدل خودرو و موتور</label>
+          <input id="profileCarInput" type="text" required placeholder="مثلاً پژو ۲۰۷ / TU5" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 focus:border-cyan-400 outline-none" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">کارکرد فعلی (کیلومتر)</label>
+          <input id="profileKmInput" type="number" min="0" required placeholder="45000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 focus:border-cyan-400 outline-none font-mono" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 font-extrabold hover:brightness-110 transition">
+          ذخیره پروفایل خودرو
+        </button>
+      </form>
+      {% if not user.is_authenticated %}
+      <div class="text-center text-[11px] text-slate-400 pt-1 border-t border-slate-700/40">
+        برای ذخیره ابری اطلاعات روی سرور،
+        <a href="{% url 'accounts:login' %}" class="text-cyan-400 font-bold hover:underline">وارد حساب</a>
+        شوید یا
+        <a href="{% url 'accounts:register' %}" class="text-cyan-400 font-bold hover:underline">ثبت‌نام</a> کنید.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main id="top" class="flex-1 pb-24 lg:pb-12">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- MOBILE BOTTOM QUICK-ACCESS BAR -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-cyan-500/20 px-2 py-1.5 flex items-center justify-around text-[10px] font-bold">
+    <a href="{% if request.resolver_match.url_name == 'home' %}#stage-section{% else %}{% url 'core:home' %}#stage-section{% endif %}" onclick="navigateToView('home')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-cyan-400">
+      <span>ایکس‌ری / ۳بعدی</span>
+    </a>
+    <a href="{% if request.resolver_match.url_name == 'home' %}#parts-section{% else %}{% url 'parts:part_list' %}{% endif %}" onclick="navigateToView('home')" class="flex flex-col items-center gap-0.5 py-1 px-2">
+      <span>قطعات</span>
+    </a>
+    <a href="{% if request.resolver_match.url_name == 'home' %}#warning-section{% else %}{% url 'core:home' %}#warning-section{% endif %}" onclick="navigateToView('home')" class="flex flex-col items-center gap-0.5 py-1 px-2 text-rose-400">
+      <span>چراغ‌ها</span>
+    </a>
+    <button type="button" onclick="toggleAiChat(true)" class="flex flex-col items-center gap-0.5 py-1 px-2 text-emerald-400">
+      <span>مکانیک AI</span>
+    </button>
+    <button type="button" onclick="toggleDrawer('mobileDashboardDrawer', true)" class="flex flex-col items-center gap-0.5 py-1 px-2">
+      <span>داشبورد</span>
+    </button>
+  </div>
+
+  <!-- FLOATING AI MECHANIC CHAT WIDGET -->
+  <div id="aiChatWidget" class="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-50 hidden w-[calc(100vw-2rem)] sm:w-96 glass-panel rounded-3xl border border-cyan-400/40 overflow-hidden shadow-2xl">
+    <div class="px-4 py-3 bg-slate-950/90 border-b border-cyan-500/20 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-xs font-extrabold text-emerald-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>مکانیک هوشمند CarInfo</span>
+      </div>
+      <button type="button" onclick="toggleAiChat(false)" class="text-xs text-slate-400 hover:text-white">✕</button>
+    </div>
+    <div id="aiChatLog" class="p-3.5 h-60 overflow-y-auto space-y-2.5 text-xs">
+      <div class="p-3 rounded-2xl bg-slate-900/80 text-slate-200 leading-relaxed">
+        سلام! علائم خرابی خودرو (مثل ریپ زدن، صدای ترمز، داغ کردن یا کد خطا) را بنویسید تا راهنمایی‌تان کنم.
+      </div>
+    </div>
+    <form onsubmit="sendAiMessage(event)" class="p-3 border-t border-cyan-500/15 flex gap-2">
+      <input id="aiChatInput" type="text" required placeholder="سوال فنی یا علامت خرابی..." class="flex-1 px-3 py-2 rounded-xl bg-slate-900/80 border border-cyan-500/25 text-xs outline-none" />
+      <button type="submit" class="px-3.5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-extrabold text-xs">ارسال</button>
+    </form>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-cyan-500/15 py-6 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
+    <div>CarInfo (کاراینفو) • مرجع تعاملی آموزش قطعات، چراغ‌های پشت آمپر و عیب‌یابی خودرو</div>
+    <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 font-bold">
+      <a href="{% url 'core:about' %}" class="text-cyan-400 hover:underline">درباره ما</a>
+      <a href="{% url 'core:contact' %}" class="text-cyan-400 hover:underline">تماس با ما</a>
+      <a href="{% url 'guides:guide_list' %}" class="text-cyan-400 hover:underline">آموزش‌ها</a>
+      <a href="{% url 'parts:part_list' %}" class="text-cyan-400 hover:underline">دانشنامه قطعات</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'favorites:home' %}" class="text-rose-400 hover:underline">علاقه‌مندی‌های من</a>
+        <a href="{% url 'maintenance:reminder_list' %}" class="text-emerald-400 hover:underline">یادآورهای سرویس</a>
+        <a href="{% url 'profile:home' %}" class="text-cyan-400 hover:underline">پروفایل من</a>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="text-cyan-400 hover:underline">ورود</a>
+        <a href="{% url 'accounts:register' %}" class="text-cyan-400 hover:underline">ثبت‌نام</a>
+      {% endif %}
+    </div>
+  </footer>
+
+  <div class="hidden">{% csrf_token %}</div>
+  {{ user_state|json_script:"carinfo-user-state" }}
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

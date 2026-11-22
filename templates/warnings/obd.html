@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}کدهای خطای دیاگ OBD-II — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-cyan-400">عیب‌یابی الکترونیکی</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">جستجوی کدهای خطای دیاگ OBD-II</h1>
+      <p class="text-xs text-slate-400 mt-1">کد خطا را وارد کنید یا از فهرست کدهای رایج انتخاب کنید</p>
+    </div>
+    <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition self-start">
+      ← بازگشت به صفحه اصلی
+    </a>
+  </div>
+
+  <section class="glass-panel rounded-3xl p-5 sm:p-7 space-y-4">
+    <div class="flex flex-col sm:flex-row gap-2.5">
+      <input id="obdInput" type="text" dir="ltr" maxlength="6" placeholder="P0300" class="sm:w-48 px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 font-mono uppercase text-xs outline-none" />
+      <button type="button" onclick="lookupObdCode()" class="px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-extrabold text-xs hover:bg-cyan-400 transition">
+        بررسی کد خطا
+      </button>
+    </div>
+    <div id="obdResultBox" class="hidden p-4 rounded-2xl bg-slate-900/75 border border-cyan-500/20 text-xs leading-relaxed"></div>
+  </section>
+
+  {% if codes %}
+  <section class="space-y-4">
+    <div class="flex items-center gap-3">
+      <h2 class="text-base font-black text-cyan-400">کدهای خطای رایج</h2>
+      <a href="{% url 'warnings:warning_list' %}" class="text-xs font-bold text-slate-400 hover:text-cyan-300 transition">چراغ‌های هشدار ←</a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {% for code in codes %}
+      <div class="glass-panel rounded-2xl p-4 space-y-2 {% if code.severity == 'red' %}border-r-4 border-r-rose-500{% else %}border-r-4 border-r-amber-400{% endif %}">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-mono font-black text-cyan-400" dir="ltr">{{ code.code }}</span>
+          <span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold {% if code.severity == 'red' %}bg-rose-500/15 text-rose-400{% else %}bg-amber-400/15 text-amber-300{% endif %}">
+            {% if code.severity == 'red' %}هشدار قرمز (توقف){% else %}هشدار زرد (بررسی){% endif %}
+          </span>
+        </div>
+        <h3 class="font-extrabold text-sm">{{ code.title }}</h3>
+        {% if code.description %}
+        <p class="text-xs text-slate-400 leading-relaxed">{{ code.description }}</p>
+        {% endif %}
+        {% if code.possible_causes %}
+        <div class="text-xs text-slate-300 leading-relaxed"><strong class="text-slate-200">علل احتمالی:</strong> {{ code.possible_causes }}</div>
+        {% endif %}
+        {% if code.recommended_action %}
+        <div class="pt-2 border-t border-slate-700/40 text-[11px] font-bold text-cyan-300">اقدام: {{ code.recommended_action }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

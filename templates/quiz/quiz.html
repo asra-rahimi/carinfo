@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}آزمون تصویری شناخت قطعات — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-amber-400">آزمون تعاملی</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">آزمون تصویری شناخت قطعات خودرو</h1>
+      <p class="text-xs text-slate-400 mt-1">تصویر قطعه را ببینید و از میان گزینه‌ها پاسخ درست را انتخاب کنید</p>
+    </div>
+    <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition self-start">
+      ← بازگشت به صفحه اصلی
+    </a>
+  </div>
+
+  <section class="glass-panel rounded-3xl p-5 sm:p-7 space-y-5">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-extrabold font-mono">
+        امتیاز: <span id="quizScoreText">0</span> / <span id="quizTotalText">0</span>
+      </div>
+      <button type="button" onclick="restartQuiz()" class="px-4 py-2 rounded-xl glass-panel border border-amber-400/30 text-xs font-extrabold text-amber-300 hover:bg-amber-500/15 transition">
+        شروع مجدد آزمون
+      </button>
+    </div>
+    <div id="quizStageBox" class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center"></div>
+  </section>
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

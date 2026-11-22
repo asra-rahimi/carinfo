@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}یادآورهای سرویس — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-emerald-400">گاراژ و سرویس</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">یادآورهای سرویس خودرو</h1>
+      <p class="text-xs text-slate-400 mt-1">ثبت، ویرایش و پیگیری سرویس‌های دوره‌ای خودرو</p>
+    </div>
+    <div class="flex gap-2 self-start">
+      <a href="{% url 'profile:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition">
+        پروفایل خودرو
+      </a>
+      <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition">
+        ← صفحه اصلی
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Add Reminder Form -->
+    <section class="lg:col-span-5 glass-panel rounded-3xl p-5 sm:p-6 space-y-3 text-xs">
+      <h2 class="text-base font-black text-emerald-400">ثبت یادآور جدید</h2>
+      <form method="post" class="space-y-3">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="block text-slate-400 mb-1">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+          <div class="mt-1 text-rose-400 text-[11px] leading-relaxed">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 font-extrabold hover:brightness-110 transition">
+          ثبت یادآور
+        </button>
+      </form>
+    </section>
+
+    <!-- Reminders List -->
+    <section class="lg:col-span-7 space-y-3">
+      <h2 class="text-base font-black">لیست یادآورهای فعال</h2>
+      {% if reminders %}
+        {% for r in reminders %}
+        <div class="glass-panel rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 {% if r.is_completed %}opacity-60{% endif %}">
+          <div class="space-y-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="font-extrabold text-sm {% if r.is_completed %}line-through text-slate-400{% endif %}">{{ r.title }}</h3>
+              {% if r.is_completed %}
+              <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-emerald-500/15 text-emerald-400">انجام شده</span>
+              {% else %}
+              <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-400/15 text-amber-300">در انتظار</span>
+              {% endif %}
+            </div>
+            {% if r.part %}<div class="text-[11px] text-cyan-400 font-bold">{{ r.part.name }}</div>{% endif %}
+            <div class="text-[11px] text-slate-400 font-mono flex flex-wrap gap-x-3 gap-y-0.5">
+              <span>کیلومتر یادآوری: {{ r.reminder_kilometer }} km</span>
+              {% if r.current_kilometer %}<span>کارکرد فعلی: {{ r.current_kilometer }} km</span>{% endif %}
+              {% if r.reminder_date %}<span>تاریخ: {{ r.reminder_date|date:"Y/m/d" }}</span>{% endif %}
+            </div>
+            {% if r.description %}<p class="text-[11px] text-slate-400 leading-relaxed">{{ r.description }}</p>{% endif %}
+          </div>
+          <div class="flex gap-1.5 text-[11px] font-bold">
+            <form method="post" action="{% url 'maintenance:reminder_toggle' r.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="px-3 py-1.5 rounded-lg glass-panel border border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/15 transition">
+                {% if r.is_completed %}بازگردانی{% else %}انجام شد ✓{% endif %}
+              </button>
+            </form>
+            <a href="{% url 'maintenance:reminder_edit' r.pk %}" class="px-3 py-1.5 rounded-lg glass-panel border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/15 transition">
+              ویرایش
+            </a>
+            <form method="post" action="{% url 'maintenance:reminder_delete' r.pk %}" onsubmit="return confirm('این یادآور حذف شود؟');">
+              {% csrf_token %}
+              <button type="submit" class="px-3 py-1.5 rounded-lg glass-panel border border-rose-500/40 text-rose-400 hover:bg-rose-500/15 transition">
+                حذف
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="glass-panel rounded-2xl p-8 text-center text-sm text-slate-400">
+        یادآور فعالی ثبت نشده است. از فرم کنار، اولین یادآور را ثبت کنید.
+      </div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ guide.title }} — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-5">
+  <div class="flex items-center justify-between gap-3">
+    <a href="{% url 'guides:guide_list' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition">
+      ← فهرست آموزش‌ها
+    </a>
+    {% if guide.category %}
+    <span class="text-[11px] px-3 py-1.5 rounded-xl bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 font-bold">{{ guide.category }}</span>
+    {% endif %}
+  </div>
+
+  <article class="glass-panel rounded-3xl overflow-hidden space-y-5">
+    <div class="h-56 sm:h-72 bg-slate-950 overflow-hidden border-b border-cyan-500/15">
+      {% if guide.visual_url %}
+      <img
+        src="{{ guide.visual_url }}"
+        alt="{{ guide.title }}"
+        data-backup-src="{{ guide.image_url }}"
+        data-fallback-src="https://placehold.co/800x450/060d1b/38bdf8?text=CarInfo"
+        onerror="if(!this.dataset.triedBackup){this.dataset.triedBackup='1';this.src=this.dataset.backupSrc;}else if(!this.dataset.triedFallback){this.dataset.triedFallback='1';this.src=this.dataset.fallbackSrc;}else{this.onerror=null;}"
+        class="w-full h-full object-cover"
+      />
+      {% else %}
+      <div class="w-full h-full flex items-center justify-center text-cyan-400/70 text-xs font-bold">تصویر در دسترس نیست</div>
+      {% endif %}
+    </div>
+
+    <div class="px-5 sm:px-7 pb-6 space-y-4">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-black leading-relaxed">{{ guide.title }}</h1>
+        <p class="text-xs text-slate-400 mt-2">{{ guide.short_description }}</p>
+      </div>
+
+      <div class="text-[11px] text-slate-400 font-mono flex items-center gap-3 border-b border-slate-700/40 pb-4">
+        <span>انتشار: {{ guide.created_at|date:"Y/m/d" }}</span>
+        {% if guide.updated_at %}
+        <span>به‌روزرسانی: {{ guide.updated_at|date:"Y/m/d" }}</span>
+        {% endif %}
+      </div>
+
+      <div class="text-sm text-slate-300 leading-loose space-y-4">
+        {{ guide.content|linebreaks }}
+      </div>
+    </div>
+  </article>
+
+  {% if others %}
+  <section class="space-y-3">
+    <h2 class="text-base font-black text-cyan-400">سایر آموزش‌ها</h2>
+    <div class="flex flex-wrap gap-2">
+      {% for other in others %}
+      <a href="{{ other.get_absolute_url }}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/20 text-xs font-bold text-slate-200 hover:bg-cyan-500/15 hover:text-cyan-300 transition">
+        {{ other.title }}
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}

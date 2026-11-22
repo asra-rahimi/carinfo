@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}دانشنامه قطعات خودرو — CarInfo{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div>
+      <span class="text-xs font-extrabold text-cyan-400">دانشنامه قطعات</span>
+      <h1 class="text-xl sm:text-2xl font-black mt-1">قطعات حیاتی و پرکاربرد خودرو</h1>
+      <p class="text-xs text-slate-400 mt-1">جستجو بر اساس نام یا فیلتر بر اساس دسته‌بندی</p>
+    </div>
+    <a href="{% url 'core:home' %}" class="px-4 py-2 rounded-xl glass-panel border border-cyan-500/30 text-xs font-extrabold text-cyan-300 hover:bg-cyan-500/15 transition self-start">
+      ← بازگشت به صفحه اصلی
+    </a>
+  </div>
+
+  <!-- Search & Filter -->
+  <form method="get" class="glass-panel rounded-2xl p-4 flex flex-col sm:flex-row gap-3 text-xs">
+    <input type="text" name="q" value="{{ query }}" placeholder="جستجوی نام قطعه (مثلاً ترمز، دینام، ECU...)" class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 outline-none focus:border-cyan-400" />
+    <select name="category" onchange="this.form.submit()" class="px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/25 font-bold outline-none">
+      <option value="">همه دسته‌ها</option>
+      {% for category in categories %}
+      <option value="{{ category.slug }}" {% if category_slug == category.slug %}selected{% endif %}>{{ category.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-extrabold hover:bg-cyan-400 transition">
+      جستجو
+    </button>
+    {% if query or category_slug %}
+    <a href="{% url 'parts:part_list' %}" class="px-4 py-2.5 rounded-xl glass-panel border border-cyan-500/25 font-bold text-center hover:bg-cyan-500/10 transition">
+      حذف فیلترها
+    </a>
+    {% endif %}
+  </form>
+
+  <!-- Parts Grid -->
+  {% if parts %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    {% for part in parts %}
+    <article class="glass-panel glass-hover-item rounded-2xl overflow-hidden flex flex-col group relative">
+      <button type="button" onclick="toggleFavoritePart('{{ part.slug }}', event)" aria-label="نشان کردن" class="absolute top-3 left-3 z-10 w-8 h-8 rounded-xl bg-slate-950/80 border border-white/15 flex items-center justify-center text-xs hover:scale-105 transition">
+        <span class="{% if part.slug in user_state.favorites %}text-rose-500{% else %}text-slate-300{% endif %}">{% if part.slug in user_state.favorites %}♥{% else %}♡{% endif %}</span>
+      </button>
+      <a href="{{ part.get_absolute_url }}" class="h-44 bg-slate-950 overflow-hidden border-b border-cyan-500/15 block">
+        {% if part.visual_url %}
+        <img
+          src="{{ part.visual_url }}"
+          alt="{{ part.name }}"
+          loading="lazy"
+          data-backup-src="{{ part.image_url }}"
+          data-fallback-src="https://placehold.co/600x360/060d1b/38bdf8?text={{ part.en_name|urlencode }}"
+          onerror="if(!this.dataset.triedBackup){this.dataset.triedBackup='1';this.src=this.dataset.backupSrc;}else if(!this.dataset.triedFallback){this.dataset.triedFallback='1';this.src=this.dataset.fallbackSrc;}else{this.onerror=null;}"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        {% else %}
+        <div class="w-full h-full flex items-center justify-center text-cyan-400/70 text-xs font-bold">تصویر در دسترس نیست</div>
+        {% endif %}
+      </a>
+      <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+        <div>
+          <span class="text-[10px] font-bold text-cyan-400">{{ part.category.name }}</span>
+          <a href="{{ part.get_absolute_url }}"><h3 class="font-extrabold text-sm mt-0.5 group-hover:text-cyan-400 transition">{{ part.name }}</h3></a>
+          <p class="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">{{ part.short_description }}</p>
+        </div>
+        <div class="pt-2.5 border-t border-slate-700/40 flex items-center justify-between text-[11px]">
+          <span class="text-amber-300 font-bold">{{ part.lifespan }}</span>
+          <a href="{{ part.get_absolute_url }}" class="text-cyan-400 font-extrabold">جزئیات ←</a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="glass-panel rounded-2xl p-8 text-center text-sm text-slate-400">
+    قطعه‌ای با این مشخصات پیدا نشد. عبارت جستجو یا فیلتر دسته‌بندی را تغییر دهید.
+  </div>
+  {% endif %}
+</div>
+
+{{ page_data|json_script:"carinfo-data" }}
+{% endblock %}
